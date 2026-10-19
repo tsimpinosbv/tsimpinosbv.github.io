@@ -3,21 +3,30 @@
   "short_name": "Check Mate Suite",
   "description": "Check Mate, Ημερολόγιο και V.C. Tips σε ένα σημείο.",
   "lang": "el",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "id": "/suite",
+  "start_url": "/index.html",
+  "scope": "/index.html",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "shortcuts": [
-    { "name": "Check Mate", "url": "/checkmate/checkmate.html", "icons": [{ "src": "/checkmate/icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "Ημερολόγιο", "url": "/checkmate/imerologio.html", "icons": [{ "src": "/checkmate/icons/diary-192.png", "sizes": "192x192" }] },
-    { "name": "V.C. Tips", "url": "/vctips/", "icons": [{ "src": "/vctips/icons/icon-192.png", "sizes": "192x192" }] }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
