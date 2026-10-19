@@ -79,6 +79,21 @@
   .msg.ok{background:#e8f6ee;color:#1d6b47}
   .foot{color:var(--muted);font-size:.86rem;text-align:center;margin-top:4px}
 
+
+  /* compact sign-in screen */
+  body.signin{padding-top:calc(env(safe-area-inset-top) + 18px);padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
+  body.signin main{padding-bottom:0}
+  body.signin .emblem{width:min(22vw,84px)}
+  body.signin .word{font-size:clamp(1.7rem,8vw,2.2rem);margin:8px 0 4px}
+  body.signin .suite{font-size:clamp(.85rem,3.6vw,1rem);gap:10px}
+  body.signin .suite i{width:clamp(32px,10vw,52px);height:2px}
+  body.signin .auth{margin-top:18px;gap:9px;max-width:340px}
+  body.signin .auth .lead{font-size:.88rem}
+  body.signin .auth label{font-size:.82rem;gap:4px}
+  body.signin .auth input{padding:9px 12px;font-size:.95rem;border-radius:10px}
+  body.signin .btn{padding:10px;font-size:.95rem;border-radius:10px}
+  body.signin .or{font-size:.8rem}
+  body.signin .foot{font-size:.8rem;margin-top:0}
 </style>
 </head>
 <body>
@@ -158,6 +173,7 @@
     $('loading').hidden = which !== 'loading';
     $('auth').hidden = which !== 'auth';
     $('home').hidden = which !== 'home';
+    document.body.classList.toggle('signin', which === 'auth');
   }
 
   var cfg = window.FIREBASE_CONFIG || {};
