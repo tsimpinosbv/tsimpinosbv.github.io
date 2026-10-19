@@ -5,88 +5,92 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Check Mate Suite</title>
 <meta name="description" content="Check Mate, Ημερολόγιο και V.C. Tips σε ένα σημείο.">
-<meta name="theme-color" content="#14213a">
+<meta name="theme-color" content="#ffffff">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CM Suite">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Commissioner:wght@500;700&display=swap">
 <style>
   :root{
-    --bg:#14213a; --bg2:#1d2d4d; --card:#ffffff; --text:#14213a; --muted:#5b6780;
-    --on-bg:#ffffff; --on-bg-muted:#aab6cc; --accent:#ff8c1e;
+    --bg:#ffffff; --blue:#2a7fd4; --orange:#f0821e; --line:#a9c9ec; --muted:#6b7a90; --ink:#14213a;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%}
+  html,body{margin:0;min-height:100%;background:var(--bg)}
   body{
-    background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;
-    color:var(--on-bg);
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
-    padding:calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 24px);
+    color:var(--ink);
+    font-family:"Commissioner",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    padding:calc(env(safe-area-inset-top) + 32px) 16px calc(env(safe-area-inset-bottom) + 24px);
     min-height:100vh; display:flex; flex-direction:column; align-items:center;
   }
-  main{width:100%;max-width:480px;display:flex;flex-direction:column;flex:1}
-  header{display:flex;align-items:center;gap:14px;margin-bottom:28px}
-  header img{width:52px;height:52px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
-  h1{font-size:1.45rem;margin:0;letter-spacing:.2px}
-  .sub{color:var(--on-bg-muted);font-size:.92rem;margin-top:2px}
-  .apps{display:flex;flex-direction:column;gap:14px}
-  a.app{
-    display:flex;align-items:center;gap:16px;text-decoration:none;
-    background:var(--card);color:var(--text);border-radius:20px;padding:16px 18px;
-    box-shadow:0 6px 20px rgba(0,0,0,.25);
-    transition:transform .12s ease, box-shadow .12s ease;
-    -webkit-tap-highlight-color:transparent;
-  }
-  a.app:active{transform:scale(.97)}
-  a.app:hover{box-shadow:0 10px 26px rgba(0,0,0,.35)}
-  a.app:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-  a.app img{width:68px;height:68px;border-radius:16px;flex:none}
-  .name{font-size:1.15rem;font-weight:700}
-  .desc{color:var(--muted);font-size:.9rem;margin-top:3px;line-height:1.35}
-  .chev{margin-left:auto;color:#b6bfd0;font-size:1.6rem;line-height:1}
-  .install{
-    margin-top:24px;display:none;width:100%;border:0;border-radius:14px;padding:14px;
-    background:var(--accent);color:#14213a;font-weight:700;font-size:1rem;cursor:pointer
-  }
-  .hint{display:none;margin-top:20px;color:var(--on-bg-muted);font-size:.88rem;text-align:center;line-height:1.45}
-  footer{margin-top:auto;padding-top:28px;color:var(--on-bg-muted);font-size:.8rem;text-align:center}
+  main{width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding-bottom:6vh}
+
+  .logo{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .emblem{width:min(42vw,180px);height:auto;display:block}
+  .word{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;color:var(--blue);
+        font-size:clamp(2.6rem,12vw,3.6rem);line-height:1;margin:14px 0 6px;letter-spacing:-.5px}
+  .suite{display:flex;align-items:center;gap:14px;font-family:"Fredoka",system-ui,sans-serif;font-weight:600;
+         color:var(--orange);font-size:clamp(1.1rem,5vw,1.45rem);letter-spacing:.42em}
+  .suite span{margin-right:-.42em}
+  .suite i{display:block;width:clamp(48px,16vw,84px);height:3px;border-radius:3px;background:var(--orange)}
+  .greet{margin-top:14px;color:var(--muted);font-size:.92rem}
+
+  .apps{display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;align-items:center;width:100%;margin-top:40px}
+  .sep{width:1px;height:70%;background:var(--line);justify-self:center}
+  a.app{display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 4px;text-decoration:none;
+        color:var(--blue);border-radius:18px;-webkit-tap-highlight-color:transparent;transition:transform .12s ease, background .12s ease}
+  a.app:hover{background:#f2f7fd}
+  a.app:active{transform:scale(.95)}
+  a.app:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+  a.app img{width:clamp(72px,22vw,96px);height:auto;aspect-ratio:1;border-radius:22%;
+            box-shadow:0 4px 14px rgba(20,33,58,.14)}
+  .name{font-weight:700;font-size:clamp(.95rem,4.2vw,1.12rem);text-align:center;line-height:1.2}
+
+  .install{margin-top:34px;display:none;width:100%;max-width:360px;border:0;border-radius:14px;padding:14px;
+           background:var(--orange);color:#fff;font:700 1rem "Commissioner",system-ui,sans-serif;cursor:pointer}
+  .hint{display:none;margin-top:26px;color:var(--muted);font-size:.88rem;text-align:center;line-height:1.5;max-width:360px}
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <img src="icon-192.png" alt="">
-    <div>
-      <h1>Check Mate Suite</h1>
-      <div class="sub" id="greet">Όλες οι εφαρμογές σε ένα σημείο</div>
-    </div>
-  </header>
+  <div class="logo" role="img" aria-label="Check Mate Suite">
+    <svg class="emblem" viewBox="0 0 52 50" aria-hidden="true">
+      <circle cx="24" cy="26" r="23" fill="#2a7fd4"/>
+      <rect x="9" y="18" width="22" height="16" rx="3" fill="#fff"/>
+      <path d="M31 23 L39 19 V33 L31 29 Z" fill="#fff"/>
+      <circle cx="20" cy="26" r="5" fill="#2a7fd4"/>
+      <circle cx="20" cy="26" r="2" fill="none" stroke="#fff" stroke-width="2.5"/>
+      <path d="M33 40 L39 46 L49 32" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M33 40 L39 46 L49 32" fill="none" stroke="#f0821e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="word">Check Mate</div>
+    <div class="suite"><i></i><span>SUITE</span><i></i></div>
+  </div>
+  <div class="greet" id="greet"></div>
 
   <nav class="apps" aria-label="Εφαρμογές">
     <a class="app" href="/checkmate/checkmate.html">
       <img src="/checkmate/icons/icon-192.png" alt="">
-      <div><div class="name">Check Mate</div><div class="desc">Αγώνες, αναθέσεις και πληρωμές Video Check</div></div>
-      <span class="chev" aria-hidden="true">›</span>
+      <span class="name">Check Mate</span>
     </a>
+    <span class="sep" aria-hidden="true"></span>
     <a class="app" href="/checkmate/imerologio.html">
       <img src="/checkmate/icons/diary-192.png" alt="">
-      <div><div class="name">Ημερολόγιο</div><div class="desc">Προσωπικό ημερολόγιο αγώνων και πληρωμών</div></div>
-      <span class="chev" aria-hidden="true">›</span>
+      <span class="name">Ημερολόγιο</span>
     </a>
+    <span class="sep" aria-hidden="true"></span>
     <a class="app" href="/vctips/">
       <img src="/vctips/icons/icon-192.png" alt="">
-      <div><div class="name">V.C. Tips</div><div class="desc">Οδηγός στησίματος, συμβουλές και γήπεδα</div></div>
-      <span class="chev" aria-hidden="true">›</span>
+      <span class="name">V.C. Tips</span>
     </a>
   </nav>
 
   <button class="install" id="installBtn">Εγκατάσταση στο κινητό</button>
   <p class="hint" id="iosHint">Για εγκατάσταση στο iPhone: πάτησε <b>Κοινοποίηση</b> και μετά <b>Προσθήκη στην οθόνη Αφετηρίας</b>.</p>
-
-  <footer>Check Mate Suite</footer>
 </main>
 <script>
   (function(){
