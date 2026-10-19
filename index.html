@@ -234,10 +234,7 @@
   });
 
   /* greeting + install */
-  var h = new Date().getHours();
-  var g = h < 12 ? 'Καλημέρα' : (h < 18 ? 'Καλησπέρα' : 'Καλό βράδυ');
-  var d = new Date().toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long' });
-  $('greet').textContent = g + ' · ' + d;
+  $('greet').textContent = new Date().toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   var deferred = null, ib = $('installBtn');
