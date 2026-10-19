@@ -1,8 +1,24 @@
 /* Check Mate Suite: small "⌂ Suite" button that appears inside Check Mate, Ημερολόγιο and V.C. Tips
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
-  try { if (sessionStorage.getItem("cmSuite") !== "1") return; } catch (e) { return; }
   if (location.pathname === "/" || location.pathname === "/index.html") return;
+  /* show it when: opened from the Suite in this window, came from the Suite page,
+     or the app runs installed (its own window on PC, or from the phone's home screen) */
+  var fromSuite = false;
+  try { fromSuite = sessionStorage.getItem("cmSuite") === "1"; } catch (e) {}
+  try {
+    var ref = document.referrer ? new URL(document.referrer) : null;
+    if (ref && ref.origin === location.origin && (ref.pathname === "/" || ref.pathname === "/index.html")) {
+      fromSuite = true; try { sessionStorage.setItem("cmSuite", "1"); } catch (e) {}
+    }
+  } catch (e) {}
+  var installed = false;
+  try {
+    installed = ["standalone", "minimal-ui", "window-controls-overlay", "fullscreen"].some(function (m) {
+      return window.matchMedia("(display-mode: " + m + ")").matches;
+    }) || window.navigator.standalone === true;
+  } catch (e) {}
+  if (!fromSuite && !installed) return;
   function add() {
     if (document.getElementById("cm-suite-back")) return;
     var css = document.createElement("style");
