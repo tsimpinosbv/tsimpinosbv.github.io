@@ -18,6 +18,20 @@
       return window.matchMedia("(display-mode: " + m + ")").matches;
     }) || window.navigator.standalone === true;
   } catch (e) {}
+  /* opened through the Suite: hide this app's own install button / iPhone install tip
+     and stop Chrome from offering to install it separately (the Suite is the installed app) */
+  if (fromSuite) {
+    var hide = document.createElement("style");
+    hide.textContent = "#cm-install,#cm-ios{display:none!important}";
+    (document.head || document.documentElement).appendChild(hide);
+    var dropManifest = function () {
+      var links = document.querySelectorAll('link[rel="manifest"]');
+      for (var i = 0; i < links.length; i++) links[i].parentNode.removeChild(links[i]);
+    };
+    dropManifest();
+    window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); e.stopImmediatePropagation(); }, true);
+    document.addEventListener("DOMContentLoaded", dropManifest);
+  }
   if (!fromSuite && !installed) return;
   function add() {
     if (document.getElementById("cm-suite-back")) return;
