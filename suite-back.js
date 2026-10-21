@@ -2,6 +2,24 @@
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
   if (location.pathname === "/" || location.pathname === "/index.html") return;
+  /* creator credit at the bottom of every app page (Check Mate, Ημερολόγιο, V.C. Tips) */
+  (function credit() {
+    function addCredit() {
+      if (document.getElementById("cm-credit")) return;
+      var st = document.createElement("style");
+      st.textContent =
+        "#cm-credit{text-align:center;font:12px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#7a869c;" +
+        "padding:18px 16px calc(64px + env(safe-area-inset-bottom,0px));clear:both}" +
+        "#cm-credit b{font-weight:600}#cm-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}" +
+        "@media print{#cm-credit{padding-bottom:0}}";
+      document.head.appendChild(st);
+      var d = document.createElement("div");
+      d.id = "cm-credit";
+      d.innerHTML = 'Δημιουργός: <b>Γιάννης Τσιμπινός</b> · <a href="mailto:tsibinos@gmail.com">tsibinos@gmail.com</a>';
+      document.body.appendChild(d);
+    }
+    if (document.body) addCredit(); else document.addEventListener("DOMContentLoaded", addCredit);
+  })();
   /* show it when: opened from the Suite in this window, came from the Suite page,
      or the app runs installed (its own window on PC, or from the phone's home screen) */
   var fromSuite = false;
