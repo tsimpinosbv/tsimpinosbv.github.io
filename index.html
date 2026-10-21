@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Check Mate Suite</title>
 <meta name="description" content="Check Mate, Ημερολόγιο και V.C. Tips σε ένα σημείο.">
+<meta name="author" content="Γιάννης Τσιμπινός, tsibinos@gmail.com">
 <meta name="theme-color" content="#d4e6fa">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -82,6 +83,11 @@
   .foot{color:var(--muted);font-size:.86rem;text-align:center;margin-top:4px}
 
 
+  .credit{margin-top:22px;font-size:.8rem;color:var(--muted);text-align:center;line-height:1.5}
+  .credit b{font-weight:600;color:var(--ink)}
+  .credit a{color:var(--blue);text-decoration:none;white-space:nowrap}
+  .credit a:hover{text-decoration:underline}
+  body.signin .credit{margin-top:12px}
   /* compact sign-in screen */
   body.signin{padding-top:calc(env(safe-area-inset-top) + 18px);padding-bottom:calc(env(safe-area-inset-bottom) + 14px)}
   body.signin main{padding-bottom:0}
@@ -145,6 +151,7 @@
     <p class="hint" id="iosHint">Για εγκατάσταση στο iPhone: πάτησε <b>Κοινοποίηση</b> και μετά <b>Προσθήκη στην οθόνη Αφετηρίας</b>.</p>
   </section>
 </main>
+<footer class="credit">Δημιουργός: <b>Γιάννης Τσιμπινός</b> · <a href="mailto:tsibinos@gmail.com">tsibinos@gmail.com</a></footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
