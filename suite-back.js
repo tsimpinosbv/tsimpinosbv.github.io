@@ -101,24 +101,44 @@
     document.addEventListener("DOMContentLoaded", dropManifest);
   }
   if (!fromSuite && !installed) return;
+  /* app switcher (bottom-left): Κεντρική (Suite home) + the two other apps. Logging out stays where it is:
+     the «Αποσύνδεση» button of each app and of the Suite home screen. */
   function add() {
     if (document.getElementById("cm-suite-back")) return;
+    var APPS = [
+      {k:"home",  url:"/",                          icon:"/icon-192.png",                   name:"Κεντρική"},
+      {k:"cm",    url:"/checkmate/checkmate.html",  icon:"/checkmate/icons/icon-192.png",   name:"Check Mate"},
+      {k:"diary", url:"/checkmate/imerologio.html", icon:"/checkmate/icons/diary-192.png",  name:"Ημερολόγιο"},
+      {k:"vct",   url:"/vctips/",                   icon:"/vctips/icons/icon-192.png",      name:"V.C. Tips"}
+    ];
+    var p = location.pathname;
+    var cur = /imerologio/.test(p) ? "diary" : /^\/vctips\//.test(p) ? "vct" : /^\/checkmate\//.test(p) ? "cm" : "";
     var css = document.createElement("style");
     css.textContent =
       "#cm-suite-back{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:80;" +
-      "display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;background:#14213a;color:#fff;" +
-      "font:600 14px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;text-decoration:none;" +
-      "box-shadow:0 4px 14px rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent;opacity:.92}" +
-      "#cm-suite-back:active{transform:scale(.95)}" +
-      "#cm-suite-back:focus-visible{outline:3px solid #ff8c1e;outline-offset:2px}" +
+      "display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:rgba(255,255,255,.96);" +
+      "border:1px solid #d9e3f0;box-shadow:0 6px 18px rgba(20,33,58,.22);-webkit-tap-highlight-color:transparent}" +
+      "#cm-suite-back a{display:flex;align-items:center;gap:6px;border-radius:999px;padding:3px;text-decoration:none;color:#14213a;" +
+      "font:600 13px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;transition:background .12s,transform .12s}" +
+      "#cm-suite-back a:hover{background:#eef4fb}#cm-suite-back a:active{transform:scale(.93)}" +
+      "#cm-suite-back a:focus-visible{outline:3px solid #f0821e;outline-offset:1px}" +
+      "#cm-suite-back img{width:34px;height:34px;border-radius:9px;display:block;box-shadow:0 1px 3px rgba(20,33,58,.18)}" +
+      "#cm-suite-back a.home{padding-right:11px;background:#14213a;color:#fff}#cm-suite-back a.home:hover{background:#1f3155}" +
+      "#cm-suite-back a.home img{box-shadow:none;background:#fff}" +
+      "#cm-suite-back .sep{width:1px;height:26px;background:#d9e3f0;margin:0 2px}" +
+      "@media (max-width:380px){#cm-suite-back a.home span{display:none}#cm-suite-back a.home{padding-right:3px}}" +
       "@media print{#cm-suite-back{display:none}}";
     document.head.appendChild(css);
-    var a = document.createElement("a");
-    a.id = "cm-suite-back";
-    a.href = "/";
-    a.setAttribute("aria-label", "Επιστροφή στο Check Mate Suite");
-    a.innerHTML = '<span aria-hidden="true">⌂</span> Suite';
-    document.body.appendChild(a);
+    var nav = document.createElement("nav");
+    nav.id = "cm-suite-back";
+    nav.setAttribute("aria-label", "Εφαρμογές Check Mate Suite");
+    nav.innerHTML = APPS.filter(function (x) { return x.k !== cur; }).map(function (x, i) {
+      return (i === 1 ? '<span class="sep" aria-hidden="true"></span>' : "") +
+        '<a href="' + x.url + '" class="' + (x.k === "home" ? "home" : "") + '" title="' + x.name + '" aria-label="' +
+        (x.k === "home" ? "Κεντρική οθόνη (Check Mate Suite)" : "Άνοιγμα " + x.name) + '">' +
+        '<img src="' + x.icon + '" alt="" width="34" height="34">' + (x.k === "home" ? "<span>Κεντρική</span>" : "") + "</a>";
+    }).join("");
+    document.body.appendChild(nav);
   }
   if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
 })();
