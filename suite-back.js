@@ -115,28 +115,25 @@
     var cur = /imerologio/.test(p) ? "diary" : /^\/vctips\//.test(p) ? "vct" : /^\/checkmate\//.test(p) ? "cm" : "";
     var css = document.createElement("style");
     css.textContent =
-      "#cm-suite-back{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:80;" +
-      "display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;background:rgba(255,255,255,.96);" +
-      "border:1px solid #d9e3f0;box-shadow:0 6px 18px rgba(20,33,58,.22);-webkit-tap-highlight-color:transparent}" +
-      "#cm-suite-back a{display:flex;align-items:center;gap:6px;border-radius:999px;padding:3px;text-decoration:none;color:#14213a;" +
-      "font:600 13px system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;transition:background .12s,transform .12s}" +
-      "#cm-suite-back a:hover{background:#eef4fb}#cm-suite-back a:active{transform:scale(.93)}" +
-      "#cm-suite-back a:focus-visible{outline:3px solid #f0821e;outline-offset:1px}" +
-      "#cm-suite-back img{width:34px;height:34px;border-radius:9px;display:block;box-shadow:0 1px 3px rgba(20,33,58,.18)}" +
-      "#cm-suite-back a.home{padding-right:11px;background:#14213a;color:#fff}#cm-suite-back a.home:hover{background:#1f3155}" +
-      "#cm-suite-back a.home img{box-shadow:none;background:#fff}" +
-      "#cm-suite-back .sep{width:1px;height:26px;background:#d9e3f0;margin:0 2px}" +
-      "@media (max-width:380px){#cm-suite-back a.home span{display:none}#cm-suite-back a.home{padding-right:3px}}" +
+      "#cm-suite-back{position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:80;" +
+      "display:flex;align-items:center;gap:6px;padding:0;background:transparent;-webkit-tap-highlight-color:transparent}" +
+      "#cm-suite-back a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;" +
+      "text-decoration:none;transition:transform .12s,opacity .12s;opacity:.9}" +
+      "#cm-suite-back a:hover{opacity:1;transform:translateY(-1px)}#cm-suite-back a:active{transform:scale(.9)}" +
+      "#cm-suite-back a:focus-visible{outline:2px solid #f0821e;outline-offset:2px}" +
+      "#cm-suite-back img{width:28px;height:28px;border-radius:7px;display:block;filter:drop-shadow(0 1px 2px rgba(20,33,58,.35))}" +
+      "#cm-suite-back svg{width:26px;height:26px;display:block;filter:drop-shadow(0 1px 1.5px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(20,33,58,.3))}" +
       "@media print{#cm-suite-back{display:none}}";
     document.head.appendChild(css);
+    var HOUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 11.2 12 3.6l8.8 7.6" fill="none" stroke="#2a7fd4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M5.6 10.2V20h4.6v-5.2h3.6V20h4.6v-9.8" fill="#2a7fd4"/><circle cx="18.4" cy="5.4" r="2.2" fill="#f0821e"/></svg>';
     var nav = document.createElement("nav");
     nav.id = "cm-suite-back";
     nav.setAttribute("aria-label", "Εφαρμογές Check Mate Suite");
-    nav.innerHTML = APPS.filter(function (x) { return x.k !== cur; }).map(function (x, i) {
-      return (i === 1 ? '<span class="sep" aria-hidden="true"></span>' : "") +
-        '<a href="' + x.url + '" class="' + (x.k === "home" ? "home" : "") + '" title="' + x.name + '" aria-label="' +
-        (x.k === "home" ? "Κεντρική οθόνη (Check Mate Suite)" : "Άνοιγμα " + x.name) + '">' +
-        '<img src="' + x.icon + '" alt="" width="34" height="34">' + (x.k === "home" ? "<span>Κεντρική</span>" : "") + "</a>";
+    nav.innerHTML = APPS.filter(function (x) { return x.k !== cur; }).map(function (x) {
+      var label = x.k === "home" ? "Κεντρική οθόνη (Check Mate Suite)" : "Άνοιγμα " + x.name;
+      return '<a href="' + x.url + '" title="' + (x.k === "home" ? "Κεντρική" : x.name) + '" aria-label="' + label + '">' +
+        (x.k === "home" ? HOUSE : '<img src="' + x.icon + '" alt="" width="28" height="28">') + "</a>";
     }).join("");
     document.body.appendChild(nav);
   }
