@@ -115,27 +115,43 @@
     var cur = /imerologio/.test(p) ? "diary" : /^\/vctips\//.test(p) ? "vct" : /^\/checkmate\//.test(p) ? "cm" : "";
     var css = document.createElement("style");
     css.textContent =
-      "#cm-suite-back{position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:80;" +
-      "display:flex;align-items:center;gap:6px;padding:0;background:transparent;-webkit-tap-highlight-color:transparent}" +
-      "#cm-suite-back a{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;" +
-      "text-decoration:none;transition:transform .12s,opacity .12s;opacity:.9}" +
-      "#cm-suite-back a:hover{opacity:1;transform:translateY(-1px)}#cm-suite-back a:active{transform:scale(.9)}" +
-      "#cm-suite-back a:focus-visible{outline:2px solid #f0821e;outline-offset:2px}" +
-      "#cm-suite-back img{width:28px;height:28px;border-radius:7px;display:block;filter:drop-shadow(0 1px 2px rgba(20,33,58,.35))}" +
-      "#cm-suite-back svg{width:26px;height:26px;display:block;filter:drop-shadow(0 1px 1.5px rgba(255,255,255,.9)) drop-shadow(0 1px 2px rgba(20,33,58,.3))}" +
+      "#cm-suite-back{position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:80;-webkit-tap-highlight-color:transparent}" +
+      "#cm-suite-back .tg{width:34px;height:34px;border-radius:50%;border:0;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;" +
+      "background:rgba(255,255,255,.82);box-shadow:0 2px 8px rgba(20,33,58,.25);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform .15s}" +
+      "#cm-suite-back .tg:active{transform:scale(.9)}#cm-suite-back .tg svg{width:20px;height:20px;transition:transform .2s}" +
+      "#cm-suite-back.open .tg{background:#e4effb;box-shadow:0 0 0 2px #2a7fd4}" +
+      "#cm-suite-back .tg:focus-visible,#cm-suite-back .pop a:focus-visible{outline:2px solid #f0821e;outline-offset:2px}" +
+      "#cm-suite-back .pop{position:absolute;left:0;bottom:42px;display:flex;flex-direction:column;gap:6px;padding:6px;border-radius:14px;" +
+      "background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(20,33,58,.28);opacity:0;transform:translateY(8px) scale(.96);" +
+      "transform-origin:bottom left;pointer-events:none;transition:opacity .15s,transform .15s}" +
+      "#cm-suite-back.open .pop{opacity:1;transform:none;pointer-events:auto}" +
+      "#cm-suite-back .pop a{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;text-decoration:none}" +
+      "#cm-suite-back .pop a:hover{background:#eef4fb}#cm-suite-back .pop a:active{transform:scale(.92)}" +
+      "#cm-suite-back .pop img{width:30px;height:30px;border-radius:7px;display:block;box-shadow:0 1px 3px rgba(20,33,58,.2)}" +
+      "#cm-suite-back .pop svg{width:26px;height:26px;display:block}" +
       "@media print{#cm-suite-back{display:none}}";
     document.head.appendChild(css);
     var HOUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.2 11.2 12 3.6l8.8 7.6" fill="none" stroke="#2a7fd4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>' +
       '<path d="M5.6 10.2V20h4.6v-5.2h3.6V20h4.6v-9.8" fill="#2a7fd4"/><circle cx="18.4" cy="5.4" r="2.2" fill="#f0821e"/></svg>';
+    var GRID = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="2" fill="#2a7fd4"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" fill="#2a7fd4"/>' +
+      '<rect x="3" y="13.5" width="7.5" height="7.5" rx="2" fill="#2a7fd4"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" fill="#f0821e"/></svg>';
     var nav = document.createElement("nav");
     nav.id = "cm-suite-back";
     nav.setAttribute("aria-label", "Εφαρμογές Check Mate Suite");
-    nav.innerHTML = APPS.filter(function (x) { return x.k !== cur; }).map(function (x) {
+    nav.innerHTML = '<div class="pop" id="cm-sw-pop">' + APPS.filter(function (x) { return x.k !== cur; }).map(function (x) {
       var label = x.k === "home" ? "Κεντρική οθόνη (Check Mate Suite)" : "Άνοιγμα " + x.name;
-      return '<a href="' + x.url + '" title="' + (x.k === "home" ? "Κεντρική" : x.name) + '" aria-label="' + label + '">' +
-        (x.k === "home" ? HOUSE : '<img src="' + x.icon + '" alt="" width="28" height="28">') + "</a>";
-    }).join("");
+      return '<a href="' + x.url + '" tabindex="-1" title="' + (x.k === "home" ? "Κεντρική" : x.name) + '" aria-label="' + label + '">' +
+        (x.k === "home" ? HOUSE : '<img src="' + x.icon + '" alt="" width="30" height="30">') + "</a>";
+    }).join("") + '</div><button type="button" class="tg" aria-expanded="false" aria-controls="cm-sw-pop" title="Εφαρμογές" aria-label="Εφαρμογές">' + GRID + '</button>';
     document.body.appendChild(nav);
+    var tg = nav.querySelector(".tg"), links = nav.querySelectorAll(".pop a");
+    function setOpen(o) {
+      nav.classList.toggle("open", o); tg.setAttribute("aria-expanded", o ? "true" : "false");
+      for (var i = 0; i < links.length; i++) links[i].tabIndex = o ? 0 : -1;
+    }
+    tg.onclick = function (e) { e.stopPropagation(); setOpen(!nav.classList.contains("open")); };
+    document.addEventListener("click", function (e) { if (!nav.contains(e.target)) setOpen(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
   }
   if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
 })();
