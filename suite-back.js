@@ -53,6 +53,12 @@
         "#cm-about hr{border:0;border-top:1px solid #e1e7f0;margin:14px 0}" +
         "#cm-about .cm-ab-apps{display:block;font-size:14px;color:#3d4a60}#cm-about .cm-ab-small{font-size:12px;color:#7a869c}" +
         "#cm-about .cm-ab-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:26px;line-height:1;color:#7a869c;cursor:pointer}" +
+        "@media (prefers-color-scheme:dark){:root:not([data-theme=light]) #cm-credit{color:#97a3ba}" +
+        ":root:not([data-theme=light]) #cm-credit button{background:#1b2436;border-color:#33405a;color:#7cb8f5;box-shadow:none}" +
+        ":root:not([data-theme=light]) #cm-about{background:#1b2436;color:#eef2f8}" +
+        ":root:not([data-theme=light]) #cm-about a,:root:not([data-theme=light]) #cm-about .cm-ab-role{color:#7cb8f5}" +
+        ":root:not([data-theme=light]) #cm-about hr{border-top-color:#33405a}" +
+        ":root:not([data-theme=light]) #cm-about .cm-ab-apps{color:#c5cfdf}}" +
         "@media print{#cm-credit{display:none!important}}";
       document.head.appendChild(st);
       d = document.createElement("div");
