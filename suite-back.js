@@ -161,3 +161,62 @@
   }
   if (document.body) add(); else document.addEventListener("DOMContentLoaded", add);
 })();
+
+/* «Νέα έκδοση» button: each app page carries <meta name="app-build">. Every few minutes (and whenever the app is
+   brought back to the screen) the page asks the server for its latest copy; if the build differs, a small orange
+   button appears. Tapping it fetches the fresh files and reloads — no need to reinstall the app. */
+(function () {
+  var meta = document.querySelector('meta[name="app-build"]');
+  if (!meta || !window.fetch) return;
+  var mine = meta.content, shown = false, busy = false, last = 0;
+  function show() {
+    if (shown) return; shown = true;
+    var st = document.createElement("style");
+    st.textContent =
+      "#cm-upd{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:2147483000;" +
+      "display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 16px 10px 12px;cursor:pointer;" +
+      "background:#f0821e;color:#fff;font:600 14px/1.2 'Commissioner',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;" +
+      "white-space:nowrap;box-shadow:0 8px 24px rgba(20,33,58,.35);animation:cmupd .35s ease-out;max-width:calc(100vw - 24px)}" +
+      "#cm-upd svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}" +
+      "#cm-upd small{font-weight:400;opacity:.9}#cm-upd:focus-visible{outline:3px solid #14213a;outline-offset:2px}" +
+      "#cm-upd.busy svg{animation:cmspin 1s linear infinite}" +
+      "@keyframes cmupd{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}" +
+      "@keyframes cmspin{to{transform:rotate(360deg)}}" +
+      "@media (prefers-reduced-motion:reduce){#cm-upd,#cm-upd.busy svg{animation:none}}@media print{#cm-upd{display:none}}";
+    document.head.appendChild(st);
+    var b = document.createElement("button");
+    b.type = "button"; b.id = "cm-upd"; b.setAttribute("role", "status");
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>' +
+      '<span>Νέα έκδοση <small>· πάτα εδώ</small></span>';
+    b.onclick = update;
+    document.body.appendChild(b);
+  }
+  function update() {
+    var b = document.getElementById("cm-upd"); if (b) { b.classList.add("busy"); b.disabled = true; }
+    /* refresh the browser's copies of this page and its own scripts/styles, then reload */
+    var urls = [location.href.split("#")[0]];
+    [].forEach.call(document.querySelectorAll("script[src],link[rel=stylesheet][href],link[rel=manifest][href]"), function (el) {
+      var u = el.src || el.href; if (u && u.indexOf(location.origin) === 0) urls.push(u);
+    });
+    var jobs = urls.map(function (u) { return fetch(u, { cache: "reload" }).catch(function () {}); });
+    Promise.all(jobs).then(function () { location.reload(); }, function () { location.reload(); });
+    setTimeout(function () { location.reload(); }, 8000);
+  }
+  function check() {
+    if (shown || busy || document.visibilityState === "hidden" || !navigator.onLine) return;
+    if (Date.now() - last < 60000) return;
+    busy = true; last = Date.now();
+    fetch(location.pathname + "?v=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (t) {
+        var m = /<meta name="app-build" content="([^"]*)"/.exec(t || "");
+        if (m && m[1] && m[1] !== mine) show();
+      })
+      .catch(function () {})
+      .then(function () { busy = false; });
+  }
+  setTimeout(check, 8000);
+  setInterval(check, 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") check(); });
+  addEventListener("online", check);
+})();
