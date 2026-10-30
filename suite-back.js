@@ -1,14 +1,13 @@
 /* Check Mate Suite: small "⌂ Suite" button that appears inside Check Mate, Ημερολόγιο and V.C. Tips
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
-  /* personal display settings (all apps on this site share them): theme auto/light/dark;
-     Check Mate admins also choose normal or compact cards */
-  var PREF = { theme: "", compact: "" };
-  try { PREF.theme = localStorage.getItem("cm-theme") || ""; PREF.compact = localStorage.getItem("cm-compact") || ""; localStorage.removeItem("cm-big"); } catch (e) {}
+  /* personal display setting (all apps on this site share it): theme auto/light/dark */
+  var PREF = { theme: "" };
+  try { PREF.theme = localStorage.getItem("cm-theme") || ""; localStorage.removeItem("cm-big"); localStorage.removeItem("cm-compact"); } catch (e) {}
   function applyPrefs() {
     var r = document.documentElement;
     if (PREF.theme === "light" || PREF.theme === "dark") r.setAttribute("data-theme", PREF.theme); else r.removeAttribute("data-theme");
-    r.classList.toggle("cm-compact", PREF.compact === "1"); r.classList.remove("cm-big");
+    r.classList.remove("cm-compact"); r.classList.remove("cm-big");
   }
   applyPrefs();
   /* footer credit + «Σχετικά» (About) window. Runs on the Suite and on all three apps.
@@ -55,20 +54,18 @@
         };
         dlg.innerHTML = '<button type="button" class="cm-ab-x" aria-label="Κλείσιμο">×</button><h2 id="cm-set-h">Ρυθμίσεις</h2>' +
           seg("cm-theme", "Θέμα", [["", "Αυτόματο"], ["light", "Ανοιχτό"], ["dark", "Σκούρο"]]) +
-          (window.CM_ADMIN_CARDS ? seg("cm-compact", "Κάρτες προγράμματος", [["", "Κανονικές"], ["1", "Συμπαγείς"]]) : "") +
-          '<p class="cm-set-note">Ισχύουν σε αυτή τη συσκευή. Το θέμα ισχύει για Check Mate, Ημερολόγιο και V.C. Tips («Αυτόματο» = όπως το κινητό ή ο υπολογιστής).' +
-          (window.CM_ADMIN_CARDS ? ' Οι «Συμπαγείς» κάρτες χωράνε περισσότερους αγώνες στην οθόνη του κινητού.' : '') + '</p>';
+          '<p class="cm-set-note">Ισχύει σε αυτή τη συσκευή, για Check Mate, Ημερολόγιο και V.C. Tips («Αυτόματο» = όπως το κινητό ή ο υπολογιστής).</p>';
         document.body.appendChild(dlg);
         dlg.querySelector(".cm-ab-x").onclick = function () { dlg.close(); };
         dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
         dlg.addEventListener("change", function (e) {
           var t = e.target; if (!t.name) return;
-          var key = t.name === "cm-theme" ? "theme" : "compact"; PREF[key] = t.value;
+          PREF.theme = t.value;
           try { if (t.value) localStorage.setItem(t.name, t.value); else localStorage.removeItem(t.name); } catch (er) {}
           applyPrefs();
         });
       }
-      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === (i.name === "cm-theme" ? PREF.theme : PREF.compact); });
+      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === PREF.theme; });
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
     }
     function addCredit() {
