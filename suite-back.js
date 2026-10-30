@@ -49,8 +49,9 @@
     var SUN = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="#f0a020" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
     function themeLabel(btn) {
       var dark = isDark();
-      btn.innerHTML = (dark ? SUN : MOON) + "<span>" + (dark ? "Ανοιχτό" : "Σκούρο") + "</span>";
+      btn.innerHTML = dark ? SUN : MOON;
       btn.title = dark ? "Αλλαγή σε ανοιχτό θέμα" : "Αλλαγή σε σκούρο θέμα";
+      btn.setAttribute("aria-label", btn.title);
       btn.setAttribute("aria-pressed", dark ? "true" : "false");
     }
     function toggleTheme(btn) {
@@ -68,6 +69,7 @@
         "#cm-credit.on{display:flex;animation:cmcr .4s ease-out}@keyframes cmcr{from{opacity:0}to{opacity:1}}" +
                 "#cm-credit button{display:inline-flex;align-items:center;gap:7px;font:600 13px/1 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#2a7fd4;" +
         "background:#fff;border:1px solid #cfe0f4;border-radius:999px;padding:7px 14px 7px 9px;cursor:pointer;box-shadow:0 2px 8px rgba(20,33,58,.08);transition:transform .12s,box-shadow .12s}" +
+        "#cm-credit .cm-themebtn{width:34px;height:34px;padding:0;justify-content:center;border-radius:50%}" +
         "#cm-credit button:hover{box-shadow:0 4px 14px rgba(20,33,58,.14);transform:translateY(-1px)}" +
         "#cm-credit button:focus-visible{outline:3px solid #f0821e;outline-offset:2px}" +
         "#cm-about{border:0;border-radius:18px;padding:26px 24px 20px;max-width:min(360px,calc(100vw - 32px));text-align:center;" +
