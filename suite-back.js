@@ -1,7 +1,8 @@
 /* Check Mate Suite: small "⌂ Suite" button that appears inside Check Mate, Ημερολόγιο and V.C. Tips
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
-  /* personal display setting (all apps on this site share it): theme auto/light/dark */
+  /* personal display setting (all apps on this site share it): theme — follows the phone/computer until the
+     user taps the light/dark switch in the footer, then light or dark is remembered on this device */
   var PREF = { theme: "" };
   try { PREF.theme = localStorage.getItem("cm-theme") || ""; localStorage.removeItem("cm-big"); localStorage.removeItem("cm-compact"); } catch (e) {}
   function applyPrefs() {
@@ -41,32 +42,21 @@
       }
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
     }
-    function settings() {
-      var dlg = document.getElementById("cm-set");
-      if (!dlg) {
-        dlg = document.createElement("dialog");
-        dlg.id = "cm-set";
-        dlg.setAttribute("aria-labelledby", "cm-set-h");
-        var seg = function (name, label, opts) {
-          return '<fieldset><legend>' + label + '</legend><div class="cm-seg">' + opts.map(function (o) {
-            return '<label><input type="radio" name="' + name + '" value="' + o[0] + '"><span>' + o[1] + '</span></label>';
-          }).join("") + '</div></fieldset>';
-        };
-        dlg.innerHTML = '<button type="button" class="cm-ab-x" aria-label="Κλείσιμο">×</button><h2 id="cm-set-h">Ρυθμίσεις</h2>' +
-          seg("cm-theme", "Θέμα", [["", "Αυτόματο"], ["light", "Ανοιχτό"], ["dark", "Σκούρο"]]) +
-          '<p class="cm-set-note">Ισχύει σε αυτή τη συσκευή, για Check Mate, Ημερολόγιο και V.C. Tips («Αυτόματο» = όπως το κινητό ή ο υπολογιστής).</p>';
-        document.body.appendChild(dlg);
-        dlg.querySelector(".cm-ab-x").onclick = function () { dlg.close(); };
-        dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
-        dlg.addEventListener("change", function (e) {
-          var t = e.target; if (!t.name) return;
-          PREF.theme = t.value;
-          try { if (t.value) localStorage.setItem(t.name, t.value); else localStorage.removeItem(t.name); } catch (er) {}
-          applyPrefs();
-        });
-      }
-      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === PREF.theme; });
-      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    /* light / dark switch: one tap changes the look (remembered on this device, for all apps on this site) */
+    var DARKQ = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
+    function isDark() { return PREF.theme ? PREF.theme === "dark" : !!(DARKQ && DARKQ.matches); }
+    var MOON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="#2a7fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+    var SUN = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="#f0a020" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+    function themeLabel(btn) {
+      var dark = isDark();
+      btn.innerHTML = (dark ? SUN : MOON) + "<span>" + (dark ? "Ανοιχτό" : "Σκούρο") + "</span>";
+      btn.title = dark ? "Αλλαγή σε ανοιχτό θέμα" : "Αλλαγή σε σκούρο θέμα";
+      btn.setAttribute("aria-pressed", dark ? "true" : "false");
+    }
+    function toggleTheme(btn) {
+      PREF.theme = isDark() ? "light" : "dark";
+      try { localStorage.setItem("cm-theme", PREF.theme); } catch (e) {}
+      applyPrefs(); themeLabel(btn);
     }
     function addCredit() {
       if (document.getElementById("cm-credit")) return;
@@ -95,27 +85,10 @@
         ":root:not([data-theme=light]) #cm-about a,:root:not([data-theme=light]) #cm-about .cm-ab-role{color:#7cb8f5}" +
         ":root:not([data-theme=light]) #cm-about hr{border-top-color:#33405a}" +
         ":root:not([data-theme=light]) #cm-about .cm-ab-apps{color:#c5cfdf}}" +
-        "#cm-set{border:0;border-radius:18px;padding:22px 22px 18px;width:min(380px,calc(100vw - 32px));box-sizing:border-box;" +
-        "font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#14213a;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.3)}" +
-        "#cm-set::backdrop{background:rgba(14,21,36,.55)}#cm-set h2{margin:0 0 10px;font-size:21px}" +
-        "#cm-set fieldset{border:0;margin:0 0 14px;padding:0}#cm-set legend{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5d6b84;margin-bottom:6px}" +
-        "#cm-set .cm-seg{display:flex;border:1px solid #d9dfea;border-radius:12px;overflow:hidden}" +
-        "#cm-set .cm-seg label{flex:1;position:relative;cursor:pointer}#cm-set .cm-seg label+label{border-left:1px solid #d9dfea}" +
-        "#cm-set .cm-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}" +
-        "#cm-set .cm-seg span{display:block;text-align:center;padding:10px 6px;font-weight:600;font-size:14px}" +
-        "#cm-set .cm-seg input:checked+span{background:#14213a;color:#fff}#cm-set .cm-seg input:focus-visible+span{outline:3px solid #f0821e;outline-offset:-3px}" +
-        "#cm-set .cm-set-note{font-size:12.5px;color:#5d6b84;margin:4px 0 0}" +
-        "#cm-set .cm-ab-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:26px;line-height:1;color:#7a869c;cursor:pointer}" +
         ":root[data-theme=dark] #cm-credit{color:#97a3ba}:root[data-theme=dark] #cm-credit button{background:#1b2436;border-color:#33405a;color:#7cb8f5;box-shadow:none}" +
-        ":root[data-theme=dark] #cm-about,:root[data-theme=dark] #cm-set{background:#1b2436;color:#eef2f8}" +
+        ":root[data-theme=dark] #cm-about{background:#1b2436;color:#eef2f8}" +
         ":root[data-theme=dark] #cm-about a,:root[data-theme=dark] #cm-about .cm-ab-role{color:#7cb8f5}:root[data-theme=dark] #cm-about hr{border-top-color:#33405a}" +
         ":root[data-theme=dark] #cm-about .cm-ab-apps{color:#c5cfdf}" +
-        ":root[data-theme=dark] #cm-set .cm-seg,:root[data-theme=dark] #cm-set .cm-seg label+label{border-color:#33405a}" +
-        ":root[data-theme=dark] #cm-set .cm-seg input:checked+span{background:#eef2f8;color:#14213a}:root[data-theme=dark] #cm-set legend,:root[data-theme=dark] #cm-set .cm-set-note{color:#a9b4c8}" +
-        "@media (prefers-color-scheme:dark){:root:not([data-theme=light]) #cm-set{background:#1b2436;color:#eef2f8}" +
-        ":root:not([data-theme=light]) #cm-set .cm-seg,:root:not([data-theme=light]) #cm-set .cm-seg label+label{border-color:#33405a}" +
-        ":root:not([data-theme=light]) #cm-set .cm-seg input:checked+span{background:#eef2f8;color:#14213a}" +
-        ":root:not([data-theme=light]) #cm-set legend,:root:not([data-theme=light]) #cm-set .cm-set-note{color:#a9b4c8}}" +
         "@media print{#cm-credit{display:none!important}}";
       document.head.appendChild(st);
       d = document.createElement("div");
@@ -124,11 +97,11 @@
         '<circle cx="12" cy="12" r="10.5" fill="#2a7fd4"/><circle cx="12" cy="7.4" r="1.6" fill="#fff"/>' +
         '<rect x="10.6" y="10.2" width="2.8" height="7.6" rx="1.4" fill="#fff"/><circle cx="19.2" cy="4.8" r="3.2" fill="#f0821e" stroke="#fff" stroke-width="1.4"/></svg>' +
         '<span>Σχετικά</span></button>' +
-        '<button type="button" class="cm-setbtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="#2a7fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>' +
-        '<span>Ρυθμίσεις</span></button>';
+        '<button type="button" class="cm-themebtn"></button>';
       d.querySelector("button").onclick = about;
-      d.querySelector(".cm-setbtn").onclick = settings;
+      var tb = d.querySelector(".cm-themebtn"); themeLabel(tb);
+      tb.onclick = function () { toggleTheme(tb); };
+      if (DARKQ && DARKQ.addEventListener) DARKQ.addEventListener("change", function () { themeLabel(tb); });
       document.body.appendChild(d);
       new MutationObserver(later).observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:["hidden"]});
       window.addEventListener("load", function () { setTimeout(check, 600); });
