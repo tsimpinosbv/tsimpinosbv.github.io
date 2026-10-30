@@ -1,13 +1,14 @@
 /* Check Mate Suite: small "⌂ Suite" button that appears inside Check Mate, Ημερολόγιο and V.C. Tips
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
-  /* personal display settings (all apps on this site share them): theme auto/light/dark, larger text */
-  var PREF = { theme: "", big: "" };
-  try { PREF.theme = localStorage.getItem("cm-theme") || ""; PREF.big = localStorage.getItem("cm-big") || ""; } catch (e) {}
+  /* personal display settings (all apps on this site share them): theme auto/light/dark;
+     Check Mate admins also choose normal or compact cards */
+  var PREF = { theme: "", compact: "" };
+  try { PREF.theme = localStorage.getItem("cm-theme") || ""; PREF.compact = localStorage.getItem("cm-compact") || ""; localStorage.removeItem("cm-big"); } catch (e) {}
   function applyPrefs() {
     var r = document.documentElement;
     if (PREF.theme === "light" || PREF.theme === "dark") r.setAttribute("data-theme", PREF.theme); else r.removeAttribute("data-theme");
-    r.classList.toggle("cm-big", PREF.big === "1");
+    r.classList.toggle("cm-compact", PREF.compact === "1"); r.classList.remove("cm-big");
   }
   applyPrefs();
   /* footer credit + «Σχετικά» (About) window. Runs on the Suite and on all three apps.
@@ -54,19 +55,20 @@
         };
         dlg.innerHTML = '<button type="button" class="cm-ab-x" aria-label="Κλείσιμο">×</button><h2 id="cm-set-h">Ρυθμίσεις</h2>' +
           seg("cm-theme", "Θέμα", [["", "Αυτόματο"], ["light", "Ανοιχτό"], ["dark", "Σκούρο"]]) +
-          seg("cm-big", "Μέγεθος γραμμάτων", [["", "Κανονικό"], ["1", "Μεγάλο"]]) +
-          '<p class="cm-set-note">Ισχύουν σε αυτή τη συσκευή, για Check Mate, Ημερολόγιο και V.C. Tips. «Αυτόματο» = όπως το κινητό ή ο υπολογιστής.</p>';
+          (window.CM_ADMIN_CARDS ? seg("cm-compact", "Κάρτες προγράμματος", [["", "Κανονικές"], ["1", "Συμπαγείς"]]) : "") +
+          '<p class="cm-set-note">Ισχύουν σε αυτή τη συσκευή. Το θέμα ισχύει για Check Mate, Ημερολόγιο και V.C. Tips («Αυτόματο» = όπως το κινητό ή ο υπολογιστής).' +
+          (window.CM_ADMIN_CARDS ? ' Οι «Συμπαγείς» κάρτες χωράνε περισσότερους αγώνες στην οθόνη του κινητού.' : '') + '</p>';
         document.body.appendChild(dlg);
         dlg.querySelector(".cm-ab-x").onclick = function () { dlg.close(); };
         dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
         dlg.addEventListener("change", function (e) {
           var t = e.target; if (!t.name) return;
-          var key = t.name === "cm-theme" ? "theme" : "big"; PREF[key] = t.value;
+          var key = t.name === "cm-theme" ? "theme" : "compact"; PREF[key] = t.value;
           try { if (t.value) localStorage.setItem(t.name, t.value); else localStorage.removeItem(t.name); } catch (er) {}
           applyPrefs();
         });
       }
-      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === (i.name === "cm-theme" ? PREF.theme : PREF.big); });
+      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === (i.name === "cm-theme" ? PREF.theme : PREF.compact); });
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
     }
     function addCredit() {
@@ -107,7 +109,6 @@
         "#cm-set .cm-seg input:checked+span{background:#14213a;color:#fff}#cm-set .cm-seg input:focus-visible+span{outline:3px solid #f0821e;outline-offset:-3px}" +
         "#cm-set .cm-set-note{font-size:12.5px;color:#5d6b84;margin:4px 0 0}" +
         "#cm-set .cm-ab-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:26px;line-height:1;color:#7a869c;cursor:pointer}" +
-        "html.cm-big body{zoom:1.14}" +
         ":root[data-theme=dark] #cm-credit{color:#97a3ba}:root[data-theme=dark] #cm-credit button{background:#1b2436;border-color:#33405a;color:#7cb8f5;box-shadow:none}" +
         ":root[data-theme=dark] #cm-about,:root[data-theme=dark] #cm-set{background:#1b2436;color:#eef2f8}" +
         ":root[data-theme=dark] #cm-about a,:root[data-theme=dark] #cm-about .cm-ab-role{color:#7cb8f5}:root[data-theme=dark] #cm-about hr{border-top-color:#33405a}" +
