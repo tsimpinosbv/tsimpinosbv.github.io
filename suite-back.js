@@ -1,6 +1,15 @@
 /* Check Mate Suite: small "⌂ Suite" button that appears inside Check Mate, Ημερολόγιο and V.C. Tips
    only when they were opened from the Suite (tsimpinosbv.github.io). Tap it to return to the Suite. */
 (function () {
+  /* personal display settings (all apps on this site share them): theme auto/light/dark, larger text */
+  var PREF = { theme: "", big: "" };
+  try { PREF.theme = localStorage.getItem("cm-theme") || ""; PREF.big = localStorage.getItem("cm-big") || ""; } catch (e) {}
+  function applyPrefs() {
+    var r = document.documentElement;
+    if (PREF.theme === "light" || PREF.theme === "dark") r.setAttribute("data-theme", PREF.theme); else r.removeAttribute("data-theme");
+    r.classList.toggle("cm-big", PREF.big === "1");
+  }
+  applyPrefs();
   /* footer credit + «Σχετικά» (About) window. Runs on the Suite and on all three apps.
      The footer stays hidden while a page is still loading ("Φόρτωση…") and fades in after. */
   (function credit() {
@@ -32,6 +41,34 @@
       }
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
     }
+    function settings() {
+      var dlg = document.getElementById("cm-set");
+      if (!dlg) {
+        dlg = document.createElement("dialog");
+        dlg.id = "cm-set";
+        dlg.setAttribute("aria-labelledby", "cm-set-h");
+        var seg = function (name, label, opts) {
+          return '<fieldset><legend>' + label + '</legend><div class="cm-seg">' + opts.map(function (o) {
+            return '<label><input type="radio" name="' + name + '" value="' + o[0] + '"><span>' + o[1] + '</span></label>';
+          }).join("") + '</div></fieldset>';
+        };
+        dlg.innerHTML = '<button type="button" class="cm-ab-x" aria-label="Κλείσιμο">×</button><h2 id="cm-set-h">Ρυθμίσεις</h2>' +
+          seg("cm-theme", "Θέμα", [["", "Αυτόματο"], ["light", "Ανοιχτό"], ["dark", "Σκούρο"]]) +
+          seg("cm-big", "Μέγεθος γραμμάτων", [["", "Κανονικό"], ["1", "Μεγάλο"]]) +
+          '<p class="cm-set-note">Ισχύουν σε αυτή τη συσκευή, για Check Mate, Ημερολόγιο και V.C. Tips. «Αυτόματο» = όπως το κινητό ή ο υπολογιστής.</p>';
+        document.body.appendChild(dlg);
+        dlg.querySelector(".cm-ab-x").onclick = function () { dlg.close(); };
+        dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+        dlg.addEventListener("change", function (e) {
+          var t = e.target; if (!t.name) return;
+          var key = t.name === "cm-theme" ? "theme" : "big"; PREF[key] = t.value;
+          try { if (t.value) localStorage.setItem(t.name, t.value); else localStorage.removeItem(t.name); } catch (er) {}
+          applyPrefs();
+        });
+      }
+      [].forEach.call(dlg.querySelectorAll("input"), function (i) { i.checked = i.value === (i.name === "cm-theme" ? PREF.theme : PREF.big); });
+      if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    }
     function addCredit() {
       if (document.getElementById("cm-credit")) return;
       var st = document.createElement("style");
@@ -59,6 +96,28 @@
         ":root:not([data-theme=light]) #cm-about a,:root:not([data-theme=light]) #cm-about .cm-ab-role{color:#7cb8f5}" +
         ":root:not([data-theme=light]) #cm-about hr{border-top-color:#33405a}" +
         ":root:not([data-theme=light]) #cm-about .cm-ab-apps{color:#c5cfdf}}" +
+        "#cm-set{border:0;border-radius:18px;padding:22px 22px 18px;width:min(380px,calc(100vw - 32px));box-sizing:border-box;" +
+        "font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#14213a;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.3)}" +
+        "#cm-set::backdrop{background:rgba(14,21,36,.55)}#cm-set h2{margin:0 0 10px;font-size:21px}" +
+        "#cm-set fieldset{border:0;margin:0 0 14px;padding:0}#cm-set legend{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5d6b84;margin-bottom:6px}" +
+        "#cm-set .cm-seg{display:flex;border:1px solid #d9dfea;border-radius:12px;overflow:hidden}" +
+        "#cm-set .cm-seg label{flex:1;position:relative;cursor:pointer}#cm-set .cm-seg label+label{border-left:1px solid #d9dfea}" +
+        "#cm-set .cm-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}" +
+        "#cm-set .cm-seg span{display:block;text-align:center;padding:10px 6px;font-weight:600;font-size:14px}" +
+        "#cm-set .cm-seg input:checked+span{background:#14213a;color:#fff}#cm-set .cm-seg input:focus-visible+span{outline:3px solid #f0821e;outline-offset:-3px}" +
+        "#cm-set .cm-set-note{font-size:12.5px;color:#5d6b84;margin:4px 0 0}" +
+        "#cm-set .cm-ab-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:26px;line-height:1;color:#7a869c;cursor:pointer}" +
+        "html.cm-big body{zoom:1.14}" +
+        ":root[data-theme=dark] #cm-credit{color:#97a3ba}:root[data-theme=dark] #cm-credit button{background:#1b2436;border-color:#33405a;color:#7cb8f5;box-shadow:none}" +
+        ":root[data-theme=dark] #cm-about,:root[data-theme=dark] #cm-set{background:#1b2436;color:#eef2f8}" +
+        ":root[data-theme=dark] #cm-about a,:root[data-theme=dark] #cm-about .cm-ab-role{color:#7cb8f5}:root[data-theme=dark] #cm-about hr{border-top-color:#33405a}" +
+        ":root[data-theme=dark] #cm-about .cm-ab-apps{color:#c5cfdf}" +
+        ":root[data-theme=dark] #cm-set .cm-seg,:root[data-theme=dark] #cm-set .cm-seg label+label{border-color:#33405a}" +
+        ":root[data-theme=dark] #cm-set .cm-seg input:checked+span{background:#eef2f8;color:#14213a}:root[data-theme=dark] #cm-set legend,:root[data-theme=dark] #cm-set .cm-set-note{color:#a9b4c8}" +
+        "@media (prefers-color-scheme:dark){:root:not([data-theme=light]) #cm-set{background:#1b2436;color:#eef2f8}" +
+        ":root:not([data-theme=light]) #cm-set .cm-seg,:root:not([data-theme=light]) #cm-set .cm-seg label+label{border-color:#33405a}" +
+        ":root:not([data-theme=light]) #cm-set .cm-seg input:checked+span{background:#eef2f8;color:#14213a}" +
+        ":root:not([data-theme=light]) #cm-set legend,:root:not([data-theme=light]) #cm-set .cm-set-note{color:#a9b4c8}}" +
         "@media print{#cm-credit{display:none!important}}";
       document.head.appendChild(st);
       d = document.createElement("div");
@@ -66,8 +125,12 @@
       d.innerHTML = '<button type="button" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">' +
         '<circle cx="12" cy="12" r="10.5" fill="#2a7fd4"/><circle cx="12" cy="7.4" r="1.6" fill="#fff"/>' +
         '<rect x="10.6" y="10.2" width="2.8" height="7.6" rx="1.4" fill="#fff"/><circle cx="19.2" cy="4.8" r="3.2" fill="#f0821e" stroke="#fff" stroke-width="1.4"/></svg>' +
-        '<span>Σχετικά</span></button>';
+        '<span>Σχετικά</span></button>' +
+        '<button type="button" class="cm-setbtn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="#2a7fd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>' +
+        '<span>Ρυθμίσεις</span></button>';
       d.querySelector("button").onclick = about;
+      d.querySelector(".cm-setbtn").onclick = settings;
       document.body.appendChild(d);
       new MutationObserver(later).observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:["hidden"]});
       window.addEventListener("load", function () { setTimeout(check, 600); });
