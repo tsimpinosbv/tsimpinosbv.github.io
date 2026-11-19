@@ -269,5 +269,6 @@
 })();
 </script>
 <script src="/suite-back.js" defer></script>
+<script>/* opens at once and without a connection (see sw.js); the Check Mate apps are prepared too, so they also open offline */ if("serviceWorker" in navigator) addEventListener("load",()=>{ navigator.serviceWorker.register("/sw.js").catch(()=>{}); navigator.serviceWorker.register("/checkmate/sw.js",{scope:"/checkmate/"}).catch(()=>{}); });</script>
 </body>
 </html>
