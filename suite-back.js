@@ -34,13 +34,43 @@
           '<h2 id="cm-about-h">Γιάννης Τσιμπινός</h2>' +
           '<p class="cm-ab-role">IT Teacher · Web App Developer</p>' +
           '<p><a href="mailto:tsibinos@gmail.com">✉ tsibinos@gmail.com</a></p>' +
+          '<div class="cm-ab-ver" hidden></div>' +
           '<hr><p class="cm-ab-apps"><b>Check Mate Suite</b><br>Check Mate · Ημερολόγιο · V.C. Tips</p>' +
           '<p class="cm-ab-small">Σχεδιασμός και ανάπτυξη: Γιάννης Τσιμπινός</p>';
         document.body.appendChild(dlg);
         dlg.querySelector(".cm-ab-x").onclick = function () { dlg.close(); };
         dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
       }
+      fillVer(dlg);
       if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+    }
+    /* version of this app (number + date of the build, from <meta name="app-version"/"app-date">) and, on the
+       administrator's devices, the list of recent versions (/checkmate/versions.json) to go back to one if needed */
+    function fillVer(dlg) {
+      var box = dlg.querySelector(".cm-ab-ver"); if (!box) return;
+      var mv = document.querySelector('meta[name="app-version"]'), md = document.querySelector('meta[name="app-date"]');
+      var suite = location.pathname === "/" || location.pathname === "/index.html";
+      if (!mv && !suite) { box.hidden = true; return; }
+      var admin = false;
+      try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf("cm.admin.") === 0 && localStorage.getItem(k) === "1") admin = true; } } catch (e) {}
+      function fd(v) { var m = /^(\d{4})-(\d\d)-(\d\d)T(\d\d:\d\d)/.exec(v || ""); return m ? m[3] + "/" + m[2] + "/" + m[1] + " · " + m[4] : ""; }
+      function esc(v) { return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+      function render(list) {
+        var top = list && list[0];
+        var cur = mv ? +mv.content : (top ? top.n : 0), date = mv ? (md ? md.content : "") : (top ? top.date : "");
+        if (!cur) { box.hidden = true; return; }
+        var h = '<p class="cm-ab-v">' + (mv ? "" : "Check Mate · Ημερολόγιο · ") + '<b>Έκδοση ' + cur + '</b>' + (date ? ' · ' + fd(date) : '') + '</p>';
+        if (admin && list && list.length) {
+          h += '<details class="cm-ab-hd"><summary>Ιστορικό εκδόσεων</summary><ol class="cm-ab-hist">' +
+            list.slice(0, 25).map(function (e) {
+              return '<li' + (e.n === cur ? ' class="cur"' : '') + '><b>' + e.n + '</b><span>' + fd(e.date) + '</span><i>' + esc(e.note) + '</i></li>';
+            }).join("") + '</ol><p class="cm-ab-small">Για επιστροφή σε προηγούμενη έκδοση, σημειώστε τον αριθμό της.</p></details>';
+        }
+        box.innerHTML = h; box.hidden = false;
+      }
+      render(null);
+      if (window.fetch) fetch("/checkmate/versions.json?v=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; }).then(function (l) { if (l) render(l); }, function () {});
     }
     /* light / dark switch: one tap changes the look (remembered on this device, for all apps on this site) */
     var DARKQ = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
@@ -80,6 +110,16 @@
         "#cm-about .cm-ab-role{color:#2a7fd4;font-weight:600}#cm-about a{color:#2a7fd4;font-weight:600;text-decoration:none}" +
         "#cm-about hr{border:0;border-top:1px solid #e1e7f0;margin:14px 0}" +
         "#cm-about .cm-ab-apps{display:block;font-size:14px;color:#3d4a60}#cm-about .cm-ab-small{font-size:12px;color:#7a869c}" +
+        "#cm-about .cm-ab-v{font-size:13px;color:#5d6b84;margin:10px 0 0}#cm-about .cm-ab-v b{color:#14213a}" +
+        "#cm-about .cm-ab-hd{text-align:left;margin-top:8px;font-size:13px}#cm-about .cm-ab-hd summary{cursor:pointer;color:#2a7fd4;font-weight:600;text-align:center}" +
+        "#cm-about .cm-ab-hist{list-style:none;margin:8px 0 4px;padding:0;max-height:240px;overflow:auto;border:1px solid #e1e7f0;border-radius:10px}" +
+        "#cm-about .cm-ab-hist li{display:grid;grid-template-columns:auto 1fr;column-gap:8px;padding:6px 10px;border-top:1px solid #eef2f7}" +
+        "#cm-about .cm-ab-hist li:first-child{border-top:0}#cm-about .cm-ab-hist li span{color:#7a869c;font-size:12px}" +
+        "#cm-about .cm-ab-hist li i{grid-column:1/-1;font-style:normal;color:#3d4a60;font-size:12.5px;line-height:1.35}" +
+        "#cm-about .cm-ab-hist li.cur{background:#fff4e8}#cm-about .cm-ab-hist li.cur b{color:#f0821e}" +
+        ":root[data-theme=dark] #cm-about .cm-ab-v b{color:#eef2f8}:root[data-theme=dark] #cm-about .cm-ab-hist{border-color:#33405a}" +
+        ":root[data-theme=dark] #cm-about .cm-ab-hist li{border-top-color:#2a3550}:root[data-theme=dark] #cm-about .cm-ab-hist li i{color:#c5cfdf}" +
+        ":root[data-theme=dark] #cm-about .cm-ab-hist li.cur{background:#3a2a17}" +
         "#cm-about .cm-ab-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:26px;line-height:1;color:#7a869c;cursor:pointer}" +
         "@media (prefers-color-scheme:dark){:root:not([data-theme=light]) #cm-credit{color:#97a3ba}" +
         ":root:not([data-theme=light]) #cm-credit button{background:#1b2436;border-color:#33405a;color:#7cb8f5;box-shadow:none}" +
