@@ -1,5 +1,5 @@
 /* Check Mate Suite service worker (home page only): opens at once and without a connection.
-   Files of the home page: the phone's copy at once, refreshed from the server in the background.
+   Files of the home page: from the server when there is a connection (always the latest), the phone's copy when not.
    Firebase libraries and fonts (fixed versions): kept on the phone. The apps under /checkmate/ have their own. */
 const CACHE = "suite-v1";
 const SHELL = ["/index.html", "/suite-back.js", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/favicon-32.png", "/creator.webp", "/checkmate/firebase-config.js"];
@@ -36,10 +36,11 @@ self.addEventListener("fetch", e => {
       .catch(() => caches.match(url.origin + p)));
     return;
   }
+  /* from the server when there is a connection (always the latest version), the phone's copy when offline or slow (3 s) */
   const key = new Request(url.origin + p);
-  e.respondWith(caches.match(key).then(hit => {
-    const net = fetch(req).then(res => save(key, res)).catch(() => null);
-    if(hit){ e.waitUntil(net); return hit; }
-    return net.then(res => res || Response.error());
-  }));
+  let stored = null;
+  const net = fetch(req).then(res => { if(res && res.ok){ const copy = res.clone(); stored = caches.open(CACHE).then(c => c.put(key, copy)).catch(() => {}); return res; } throw new Error("http " + (res && res.status)); });
+  e.waitUntil(net.then(() => stored, () => {}));
+  const late = new Promise(ok => setTimeout(ok, 3000)).then(() => caches.match(key));
+  e.respondWith(Promise.race([net, late.then(hit => hit || net)]).catch(() => caches.match(key).then(r => r || Response.error())));
 });
