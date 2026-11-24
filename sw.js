@@ -17,6 +17,8 @@ self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith("suite-") && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
+/* only the Suite's own copies (other apps of the site keep their own caches) */
+const mine = (req, opt) => caches.open(CACHE).then(c => c.match(req, opt));
 const save = (req, res) => { if(res && (res.ok || res.type === "opaque")){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); } return res; };
 
 self.addEventListener("fetch", e => {
@@ -25,7 +27,7 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   if(url.origin !== self.location.origin){
     if(!KEEP.test(req.url)) return;
-    e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => save(req, res))));
+    e.respondWith(mine(req).then(hit => hit || fetch(req).then(res => save(req, res))));
     return;
   }
   /* only the home page and its own files (root level, plus the shared Firebase settings) */
@@ -33,7 +35,7 @@ self.addEventListener("fetch", e => {
   if(!(/^\/[^/]*$/.test(p) || p === "/checkmate/firebase-config.js")) return;
   if(req.cache === "no-store" || req.cache === "reload"){
     e.respondWith(fetch(req).then(res => { if(req.cache === "reload") save(new Request(url.origin + p), res); return res; })
-      .catch(() => caches.match(url.origin + p)));
+      .catch(() => mine(url.origin + p)));
     return;
   }
   /* from the server when there is a connection (always the latest version), the phone's copy when offline or slow (3 s) */
@@ -41,6 +43,6 @@ self.addEventListener("fetch", e => {
   let stored = null;
   const net = fetch(req).then(res => { if(res && res.ok){ const copy = res.clone(); stored = caches.open(CACHE).then(c => c.put(key, copy)).catch(() => {}); return res; } throw new Error("http " + (res && res.status)); });
   e.waitUntil(net.then(() => stored, () => {}));
-  const late = new Promise(ok => setTimeout(ok, 3000)).then(() => caches.match(key));
-  e.respondWith(Promise.race([net, late.then(hit => hit || net)]).catch(() => caches.match(key).then(r => r || Response.error())));
+  const late = new Promise(ok => setTimeout(ok, 3000)).then(() => mine(key));
+  e.respondWith(Promise.race([net, late.then(hit => hit || net)]).catch(() => mine(key).then(r => r || Response.error())));
 });
