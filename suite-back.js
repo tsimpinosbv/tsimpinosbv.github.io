@@ -275,6 +275,19 @@
       var u = el.src || el.href; if (u && u.indexOf(location.origin) === 0) urls.push(u);
     });
     var jobs = urls.map(function (u) { return fetch(u, { cache: "reload" }).catch(function () {}); });
+    /* also drop any older copy of this page kept on the phone by another app of the site (e.g. V.C. Tips) and
+       ask for the newest service worker, so the reload can only show the new version */
+    var path = location.pathname;
+    if (window.caches) jobs.push(caches.keys().then(function (ks) {
+      return Promise.all(ks.filter(function (k) { return k.indexOf("checkmate-") !== 0 && k.indexOf("suite-") !== 0; }).map(function (k) {
+        return caches.open(k).then(function (c) { return c.keys().then(function (rs) {
+          return Promise.all(rs.filter(function (r) { return new URL(r.url).pathname === path; }).map(function (r) { return c.delete(r); }));
+        }); });
+      }));
+    }).catch(function () {}));
+    if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+      return Promise.all(rs.map(function (r) { return r.update().catch(function () {}); }));
+    }).catch(function () {}));
     Promise.all(jobs).then(function () { location.reload(); }, function () { location.reload(); });
     setTimeout(function () { location.reload(); }, 8000);
   }
