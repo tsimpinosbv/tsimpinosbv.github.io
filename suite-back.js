@@ -244,7 +244,26 @@
 (function () {
   var meta = document.querySelector('meta[name="app-build"]');
   if (!meta || !window.fetch) return;
-  var mine = meta.content, shown = false, busy = false, last = 0;
+  var mine = meta.content, shown = false, busy = false, last = 0, latest = "";
+  /* after a tap on the button the page must come back as the new version. If an old copy on the phone still wins
+     (an older helper of the site kept it), start clean once: remove this site's helpers and stored page copies
+     (the sign-in and the data stay on the phone) and load everything again from the server */
+  var TRY = "cm.updTried", HARD = "cm.updHard";
+  function hardReset() {
+    try { sessionStorage.setItem(HARD, "1"); } catch (e) {}
+    var jobs = [];
+    if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }).catch(function () {}));
+    if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }).catch(function () {}));
+    Promise.all(jobs).then(function () { location.reload(); }, function () { location.reload(); });
+    setTimeout(function () { location.reload(); }, 5000);
+  }
+  try {
+    var tried = JSON.parse(sessionStorage.getItem(TRY) || "null");
+    if (tried && Date.now() - tried.t < 180000) {
+      if (tried.b && tried.b !== mine && !sessionStorage.getItem(HARD)) { hardReset(); return; }
+      sessionStorage.removeItem(TRY);
+    }
+  } catch (e) {}
   function show() {
     if (shown) return; shown = true;
     var st = document.createElement("style");
@@ -278,6 +297,7 @@
     /* also drop any older copy of this page kept on the phone by another app of the site (e.g. V.C. Tips) and
        ask for the newest service worker, so the reload can only show the new version */
     var path = location.pathname;
+    try { sessionStorage.setItem(TRY, JSON.stringify({ b: latest, t: Date.now() })); } catch (e) {}
     if (window.caches) jobs.push(caches.keys().then(function (ks) {
       return Promise.all(ks.filter(function (k) { return k.indexOf("checkmate-") !== 0 && k.indexOf("suite-") !== 0; }).map(function (k) {
         return caches.open(k).then(function (c) { return c.keys().then(function (rs) {
@@ -299,7 +319,7 @@
       .then(function (r) { return r.ok ? r.text() : ""; })
       .then(function (t) {
         var m = /<meta name="app-build" content="([^"]*)"/.exec(t || "");
-        if (m && m[1] && m[1] !== mine) show();
+        if (m && m[1] && m[1] !== mine) { latest = m[1]; show(); }
       })
       .catch(function () {})
       .then(function () { busy = false; });
